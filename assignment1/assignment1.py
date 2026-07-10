@@ -116,9 +116,13 @@ def student_scores(option, **kwargs):
 
         return best_student
     elif option == "mean":
+        if len(kwargs) == 0:
+            return 0
         total_score = 0
+
         for score in kwargs.values():
             total_score = total_score + score
+
         average = total_score / len(kwargs)
 
         return average
@@ -156,7 +160,7 @@ def hangman (secret, guess):
         if letter in guess:
             result = result + letter
         else: 
-            result = result + " "
+            result = result + "_"
     return result
 
 print(hangman("pineapple", "pe"))
@@ -181,7 +185,7 @@ def pig_latin(english):
                 index = index + 1
             new_word = word[index:] + word[:index] + "ay"
         new_words.append(new_word)
-    return "".join(new_word)
+    return "".join(new_words)
 
 print(pig_latin("apple"))
 print(pig_latin("watermelon"))
