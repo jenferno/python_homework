@@ -106,18 +106,23 @@ print (repeat("Happy", 4))
 
 def student_scores(option, **kwargs):
     if option == "best":
-        highest_score = 0
-        best_student = ""
+        if len(kwargs) == 0:
+            return None
 
-        for student, score in kwargs.items():
+        students = list(kwargs.items())
+        best_student, highest_score = students[0]
+
+        for student, score in students[1:]:
             if score > highest_score:
                 highest_score = score
                 best_student = student
 
         return best_student
+
     elif option == "mean":
         if len(kwargs) == 0:
             return 0
+
         total_score = 0
 
         for score in kwargs.values():
@@ -126,7 +131,8 @@ def student_scores(option, **kwargs):
         average = total_score / len(kwargs)
 
         return average
-    
+
+
 print(student_scores("best", Jennifer=98, Alex=88, Sarah=92))
 print(student_scores("mean", Jennifer=98, Alex=88, Sarah=92))
 
@@ -138,9 +144,7 @@ def titleize (book_title):
     words = book_title.split()
 
     for i, word in enumerate(words):
-        if i == 0:
-            words[i] = word.capitalize()
-        elif i == len(words) - 1:
+        if i == 0 or i == len(words) - 1:
             words[i] = word.capitalize()
         elif word in little_words:
             words[i] = word.lower()
@@ -185,9 +189,8 @@ def pig_latin(english):
                 index = index + 1
             new_word = word[index:] + word[:index] + "ay"
         new_words.append(new_word)
-    return "".join(new_words)
+    return " ".join(new_words)
 
 print(pig_latin("apple"))
 print(pig_latin("watermelon"))
 print(pig_latin("strong"))
-
