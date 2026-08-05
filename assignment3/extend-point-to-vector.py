@@ -18,33 +18,39 @@ class Point:
         x_difference = other.x - self.x
         y_difference = other.y - self.y
 
-        return math.sqrt(
-            x_difference ** 2 + y_difference ** 2
-        )
+        return math.sqrt(x_difference ** 2 + y_difference ** 2)
 
 
 class Vector(Point):
+
+    # Task: Use the same initializer as Point
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
     def __str__(self):
         return f"Vector({self.x}, {self.y})"
 
     def __add__(self, other):
         new_x = self.x + other.x
         new_y = self.y + other.y
-
         return Vector(new_x, new_y)
 
 
-# Point Methods
+
+# Point methods
+
 point1 = Point(2, 4)
 point2 = Point(12, 13)
 point3 = Point(9, 18)
 
 print(point1)
 print(point1 == point2)
-print(point1 == point3)
+print(point1 == Point(2, 4))
 print(point1.distance(point3))
 
+
 # Vector methods
+
 vector1 = Vector(6, 7)
 vector2 = Vector(8, 10)
 vector3 = vector1 + vector2
@@ -52,4 +58,4 @@ vector3 = vector1 + vector2
 print(vector1)
 print(vector2)
 print(vector3)
-print(vector3 == Vector(8, 24))
+print(vector3 == Vector(14, 17))

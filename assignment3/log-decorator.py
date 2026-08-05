@@ -1,14 +1,15 @@
-## Task 1 : Writing and Test a Decorator
+# Task 1 : Writing and Testing a Decorator
 
 import logging
 
-#logging Setup
+# ---------------------------
+# Logging Setup
 logger = logging.getLogger(__name__ + "_parameter_log")
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.FileHandler("./decorator.log", "a"))
 
 
-#Decorator
+# Decorator
 def logger_decorator(func):
 
     def wrapper(*args, **kwargs):
@@ -21,7 +22,7 @@ def logger_decorator(func):
 
         # Positional parameters
         if args:
-            logger.info(f"positional parameters: {args}")
+            logger.info(f"positional parameters: {list(args)}")
         else:
             logger.info("positional parameters: none")
 
@@ -40,27 +41,35 @@ def logger_decorator(func):
     return wrapper
 
 
-# Function 1 
+
+# Function 1
+
 @logger_decorator
 def hello():
     print("Hello, World!")
 
 
+
 # Function 2
+
 @logger_decorator
 def numbers(*args):
     print(args)
     return True
 
 
+
 # Function 3
+
 @logger_decorator
 def keywords(**kwargs):
     print(kwargs)
     return logger_decorator
 
 
-# Main Program 
+
+# Main Program
+
 hello()
 numbers(10, 20, 30)
 keywords(name="Jennifer", course="Python", lesson=3)
