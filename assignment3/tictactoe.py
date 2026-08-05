@@ -1,4 +1,5 @@
-# Task 6 : More on Classes
+# Task 6: More on Classes
+
 
 class TictactoeException(Exception):
     def __init__(self, message):
@@ -28,22 +29,28 @@ class Board:
         "lower right": (2, 2)
     }
 
+    # Task: Initialize board
     def __init__(self):
         self.board_array = [[" " for _ in range(3)] for _ in range(3)]
         self.turn = "X"
         self.last_move = None
 
+    # Task: String representation
     def __str__(self):
         rows = []
+
         for row in self.board_array:
             rows.append(" | ".join(row))
+
         return "\n-+-+-\n".join(rows)
 
+    # Task: Make a move
     def move(self, move_string):
-        if move_string not in Board.valid_moves:
+
+        if move_string not in self.valid_moves:
             raise TictactoeException("That's not a valid move.")
 
-        row, col = Board.move_map[move_string]
+        row, col = self.move_map[move_string]
 
         if self.board_array[row][col] != " ":
             raise TictactoeException("That spot is taken.")
@@ -51,41 +58,52 @@ class Board:
         self.board_array[row][col] = self.turn
         self.last_move = (row, col)
 
-        # Switch turns
+        # Change player turn
         self.turn = "O" if self.turn == "X" else "X"
 
+    # Task: Check game status
     def whats_next(self):
-        # Check rows
-        lines = self.board_array[:]
 
-        # Check columns
-        lines.extend([list(col) for col in zip(*self.board_array)])
+        lines = []
 
-        # Check diagonals
+        # Rows
+        lines.extend(self.board_array)
+
+        # Columns
+        lines.extend([list(column) for column in zip(*self.board_array)])
+
+        # Diagonals
         lines.append([self.board_array[i][i] for i in range(3)])
         lines.append([self.board_array[i][2 - i] for i in range(3)])
 
-        # Check for winner
+        # Check winner
         for line in lines:
-            if line == ["X"] * 3:
-                return (True, "X has won")
-            if line == ["O"] * 3:
-                return (True, "O has won")
+            if line == ["X", "X", "X"]:
+                return True, "X has won"
 
-        # Check for tie
-        if all(cell != " " for row in self.board_array for cell in row):
-            return (True, "Cat's Game")
+            if line == ["O", "O", "O"]:
+                return True, "O has won"
 
-        return (False, f"{self.turn}'s turn")
+        # Check tie
+        if all(
+            cell != " "
+            for row in self.board_array
+            for cell in row
+        ):
+            return True, "Cat's Game"
+
+        return False, f"{self.turn}'s turn"
 
 
-# Main game loop
+# Task: Main game loop
 if __name__ == "__main__":
+
     board = Board()
 
     print("Welcome to TicTacToe!")
 
     while True:
+
         print(board)
 
         over, status = board.whats_next()
@@ -94,10 +112,12 @@ if __name__ == "__main__":
             print(status)
             break
 
-        print(f"{board.turn}'s move. Valid moves: {Board.valid_moves}")
+        print(f"{board.turn}'s move.")
+        print(f"Valid moves: {board.valid_moves}")
 
         try:
-            move = input("Enter your move: ").strip()
+            move = input("Enter your move: ").strip().lower()
             board.move(move)
+
         except TictactoeException as e:
             print(f"Error: {e.message}")
