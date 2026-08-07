@@ -194,3 +194,4 @@ def pig_latin(english):
 print(pig_latin("apple"))
 print(pig_latin("watermelon"))
 print(pig_latin("strong"))
+# %%
