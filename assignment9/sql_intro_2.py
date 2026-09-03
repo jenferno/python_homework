@@ -1,10 +1,18 @@
+import os
 import sqlite3
 import pandas as pd
+
+# Anchor all paths to this script's own directory (assignment9), so the
+# database connection and the CSV output both work correctly regardless
+# of the working directory the script is launched from.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(SCRIPT_DIR, "..", "db", "lesson.db")
+OUTPUT_PATH = os.path.join(SCRIPT_DIR, "order_summary.csv")
 
 conn = None
 
 try:
-    conn = sqlite3.connect("../db/lesson.db")
+    conn = sqlite3.connect(DB_PATH)
 
     query = """
         SELECT
@@ -42,11 +50,11 @@ try:
 
     summary_df = summary_df.sort_values(by="product_name")
 
-    summary_df.to_csv("order_summary.csv", index=False)
+    summary_df.to_csv(OUTPUT_PATH, index=False)
 
     print("\nSorted order summary:")
     print(summary_df.head())
-    print("\norder_summary.csv created successfully.")
+    print(f"\norder_summary.csv created successfully at: {OUTPUT_PATH}")
 
 except (sqlite3.Error, pd.errors.DatabaseError) as error:
     print(f"Database error: {error}")

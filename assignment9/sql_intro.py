@@ -87,13 +87,21 @@ def add_subscription(
     expiration_date
 ):
     try:
+        # Check subscriber_id, magazine_id, AND expiration_date together.
+        # This matches the join table's data model: a subscriber can have
+        # more than one subscription record for the same magazine over
+        # time (e.g. a renewal with a new expiration_date), but the exact
+        # same (subscriber, magazine, expiration_date) row should never
+        # be inserted twice.
         cursor.execute(
             """
             SELECT subscription_id
             FROM subscriptions
-            WHERE subscriber_id = ? AND magazine_id = ?
+            WHERE subscriber_id = ?
+              AND magazine_id = ?
+              AND expiration_date = ?
             """,
-            (subscriber_id, magazine_id)
+            (subscriber_id, magazine_id, expiration_date)
         )
         subscription = cursor.fetchone()
 
@@ -152,6 +160,10 @@ try:
         )
     """)
 
+    # UNIQUE constraint now includes expiration_date so that the
+    # database itself enforces the same duplicate rule as
+    # add_subscription(): no two rows may share the same
+    # subscriber_id, magazine_id, AND expiration_date.
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS subscriptions (
             subscription_id INTEGER PRIMARY KEY,
@@ -162,7 +174,7 @@ try:
                 REFERENCES subscribers (subscriber_id),
             FOREIGN KEY (magazine_id)
                 REFERENCES magazines (magazine_id),
-            UNIQUE (subscriber_id, magazine_id)
+            UNIQUE (subscriber_id, magazine_id, expiration_date)
         )
     """)
 
