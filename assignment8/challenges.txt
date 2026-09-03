@@ -1,0 +1,10 @@
+Task 6 : Assignment challenges
+
+One thing I ran into was that the OWASP project page had actually changed 
+since this assignment was originally written. Instead of listing the ten 
+vulnerabilities directly on that page like it probably used to, it now 
+just links out to the current OWASP Top 10:2025 page. So I followed that 
+link to get to the updated page, looked through its HTML structure, and 
+then used XPath to navigate from the "Top 10:2025" heading down to the 
+ordered list that actually contains the ten vulnerability links.
+
