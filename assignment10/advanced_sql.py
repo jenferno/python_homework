@@ -34,17 +34,22 @@ with sqlite3.connect(db_path) as conn:
 # Task 2: Understanding Subqueries
 
 sql_statement = """
-    SELECT c.customer_name, AVG(sq.total_price) AS average_total_price
+    SELECT
+        c.customer_name,
+        AVG(sq.total_price) AS average_total_price
     FROM customers c
     LEFT JOIN (
-        SELECT o.customer_id AS customer_id_b,
-               SUM(l.quantity * p.price) AS total_price
+        SELECT
+            o.customer_id AS customer_id_b,
+            SUM(l.quantity * p.price) AS total_price
         FROM orders o
-        JOIN line_items l ON o.order_id = l.order_id
-        JOIN products p ON l.product_id = p.product_id
+        JOIN line_items l
+            ON o.order_id = l.order_id
+        JOIN products p
+            ON l.product_id = p.product_id
         GROUP BY o.order_id
     ) AS sq
-    ON c.customer_id = sq.customer_id_b
+        ON c.customer_id = sq.customer_id_b
     GROUP BY c.customer_id
 """
 
@@ -61,7 +66,10 @@ with sqlite3.connect(db_path) as conn:
         print("-----------------------------------")
 
         for row in results:
-            print(f"{row['customer_name']} | {row['average_total_price']:.2f}")
+            print(
+                f"{row['customer_name']} | "
+                f"{row['average_total_price']:.2f}"
+            )
 
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -106,6 +114,9 @@ with sqlite3.connect(db_path) as conn:
 
         product_ids = [row["product_id"] for row in cursor.fetchall()]
 
+        # Begin one transaction for the order and line items
+        conn.execute("BEGIN")
+
         # Insert a new order for "Perez and Sons"
         # handled by "Miranda Harris"
         cursor.execute("""
@@ -142,7 +153,11 @@ with sqlite3.connect(db_path) as conn:
         final_results = cursor.fetchall()
 
         # Print the results
-        print(f"{'Line Item ID':<15} | {'Quantity':<10} | {'Product Name'}")
+        print(
+            f"{'Line Item ID':<15} | "
+            f"{'Quantity':<10} | "
+            f"{'Product Name'}"
+        )
         print("-" * 50)
 
         for row in final_results:
@@ -181,6 +196,7 @@ with sqlite3.connect(db_path) as conn:
         cursor.execute(sql_statement)
         results = cursor.fetchall()
 
+        # Print the four required fields
         print("Employee ID | First Name | Last Name | Order Count")
         print("----------------------------------------------------")
 
