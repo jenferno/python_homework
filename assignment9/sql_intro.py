@@ -17,6 +17,7 @@ def add_publisher(cursor, name):
             "INSERT INTO publishers (name) VALUES (?)",
             (name,)
         )
+
         return cursor.lastrowid
 
     except sqlite3.Error as error:
@@ -43,6 +44,7 @@ def add_magazine(cursor, name, publisher_id):
             """,
             (name, publisher_id)
         )
+
         return cursor.lastrowid
 
     except sqlite3.Error as error:
@@ -52,6 +54,7 @@ def add_magazine(cursor, name, publisher_id):
 
 def add_subscriber(cursor, name, address):
     try:
+        # Check both name AND address to prevent duplicate subscribers.
         cursor.execute(
             """
             SELECT subscriber_id
@@ -73,6 +76,7 @@ def add_subscriber(cursor, name, address):
             """,
             (name, address)
         )
+
         return cursor.lastrowid
 
     except sqlite3.Error as error:
@@ -87,12 +91,8 @@ def add_subscription(
     expiration_date
 ):
     try:
-        # Check subscriber_id, magazine_id, AND expiration_date together.
-        # This matches the join table's data model: a subscriber can have
-        # more than one subscription record for the same magazine over
-        # time (e.g. a renewal with a new expiration_date), but the exact
-        # same (subscriber, magazine, expiration_date) row should never
-        # be inserted twice.
+        # Check the complete combination of subscriber,
+        # magazine, and expiration date.
         cursor.execute(
             """
             SELECT subscription_id
@@ -103,6 +103,7 @@ def add_subscription(
             """,
             (subscriber_id, magazine_id, expiration_date)
         )
+
         subscription = cursor.fetchone()
 
         if subscription:
@@ -120,6 +121,7 @@ def add_subscription(
             """,
             (subscriber_id, magazine_id, expiration_date)
         )
+
         return cursor.lastrowid
 
     except sqlite3.Error as error:
@@ -131,10 +133,13 @@ conn = None
 
 try:
     conn = sqlite3.connect("../db/magazines.db")
+
+    # Enforce valid foreign keys
     conn.execute("PRAGMA foreign_keys = 1")
 
     cursor = conn.cursor()
 
+    # Create publishers table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS publishers (
             publisher_id INTEGER PRIMARY KEY,
@@ -142,6 +147,7 @@ try:
         )
     """)
 
+    # Create magazines table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS magazines (
             magazine_id INTEGER PRIMARY KEY,
@@ -152,6 +158,7 @@ try:
         )
     """)
 
+    # Create subscribers table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS subscribers (
             subscriber_id INTEGER PRIMARY KEY,
@@ -160,10 +167,7 @@ try:
         )
     """)
 
-    # UNIQUE constraint now includes expiration_date so that the
-    # database itself enforces the same duplicate rule as
-    # add_subscription(): no two rows may share the same
-    # subscriber_id, magazine_id, AND expiration_date.
+    # Create subscriptions table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS subscriptions (
             subscription_id INTEGER PRIMARY KEY,
@@ -178,69 +182,140 @@ try:
         )
     """)
 
-    # Add at least three publishers.
-    publisher_1 = add_publisher(cursor, "Condé Nast")
-    publisher_2 = add_publisher(cursor, "Hearst Communications")
-    publisher_3 = add_publisher(cursor, "National Geographic Partners")
+    # -----------------------------------
+    # Add at least 3 publishers
+    # -----------------------------------
 
-    # Add at least three magazines.
-    magazine_1 = add_magazine(cursor, "The New Yorker", publisher_1)
-    magazine_2 = add_magazine(cursor, "Esquire", publisher_2)
+    publisher_1 = add_publisher(
+        cursor,
+        "Condé Nast"
+    )
+
+    publisher_2 = add_publisher(
+        cursor,
+        "Hearst Communications"
+    )
+
+    publisher_3 = add_publisher(
+        cursor,
+        "National Geographic Partners"
+    )
+
+    # -----------------------------------
+    # Add at least 3 magazines
+    # -----------------------------------
+
+    magazine_1 = add_magazine(
+        cursor,
+        "The New Yorker",
+        publisher_1
+    )
+
+    magazine_2 = add_magazine(
+        cursor,
+        "Esquire",
+        publisher_2
+    )
+
     magazine_3 = add_magazine(
         cursor,
         "National Geographic",
         publisher_3
     )
 
-    # Add at least three subscribers.
+    # -----------------------------------
+    # Add at least 3 subscribers
+    # -----------------------------------
+
     subscriber_1 = add_subscriber(
         cursor,
         "Alice Johnson",
         "100 Main Street"
     )
+
     subscriber_2 = add_subscriber(
         cursor,
         "Marcus Reed",
         "205 Oak Avenue"
     )
+
     subscriber_3 = add_subscriber(
         cursor,
         "Elena Garcia",
         "312 Pine Road"
     )
 
-    # Add at least three subscriptions.
-    add_subscription(cursor, subscriber_1, magazine_1, "2027-08-01")
-    add_subscription(cursor, subscriber_2, magazine_2, "2027-09-15")
-    add_subscription(cursor, subscriber_3, magazine_3, "2027-10-30")
+    # -----------------------------------
+    # Add at least 3 subscriptions
+    # -----------------------------------
 
-    # Query 1: Retrieve all subscribers.
-    cursor.execute("SELECT * FROM subscribers")
+    add_subscription(
+        cursor,
+        subscriber_1,
+        magazine_1,
+        "2027-08-01"
+    )
+
+    add_subscription(
+        cursor,
+        subscriber_2,
+        magazine_2,
+        "2027-09-15"
+    )
+
+    add_subscription(
+        cursor,
+        subscriber_3,
+        magazine_3,
+        "2027-10-30"
+    )
+
+    # -----------------------------------
+    # Query 1: Retrieve all subscribers
+    # -----------------------------------
+
+    cursor.execute("""
+        SELECT *
+        FROM subscribers
+    """)
+
     subscribers = cursor.fetchall()
 
     print("\nAll subscribers:")
+
     for subscriber in subscribers:
         print(subscriber)
 
-    # Query 2: Retrieve all magazines sorted by name.
+    # -----------------------------------
+    # Query 2: Retrieve all magazines
+    # sorted by name
+    # -----------------------------------
+
     cursor.execute("""
         SELECT *
         FROM magazines
         ORDER BY name
     """)
+
     magazines = cursor.fetchall()
 
     print("\nMagazines sorted by name:")
+
     for magazine in magazines:
         print(magazine)
 
-    # Query 3: Find magazines from a particular publisher.
+    # -----------------------------------
+    # Query 3: Find magazines from
+    # a particular publisher
+    # -----------------------------------
+
     publisher_name = "Hearst Communications"
 
     cursor.execute("""
-        SELECT magazines.magazine_id,
-               magazines.name,
-               publishers.name
+        SELECT
+            magazines.magazine_id,
+            magazines.name,
+            publishers.name AS publishers_name
         FROM magazines
         JOIN publishers
             ON magazines.publisher_id = publishers.publisher_id
@@ -250,14 +325,20 @@ try:
     publisher_magazines = cursor.fetchall()
 
     print(f"\nMagazines published by {publisher_name}:")
+
     for magazine in publisher_magazines:
         print(magazine)
 
+    # Save all changes
     conn.commit()
-    print("Database tables and data created successfully.")
+
+    print("\nDatabase tables and data created successfully.")
 
 except sqlite3.Error as error:
     print(f"Database error: {error}")
+
+    if conn is not None:
+        conn.rollback()
 
 finally:
     if conn is not None:
