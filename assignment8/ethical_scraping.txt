@@ -1,0 +1,31 @@
+Task 5: Ethical Web Scraping
+
+1. Which sections of the website are restricted for crawling?
+
+I looked at which parts of the Wikipedia website are actually off-limits to scrapers. It turns out 
+Wikipedia blocks crawlers from accessing the "behind-the-scenes" parts of the site, things like the 
+/w/ and /api/ folders, a "trap" path (which I'm guessing is there to catch bots that don't follow the 
+rules), and certain Special: pages. They also block a lot of the admin-type pages, like ones used for 
+search, deletion requests, spam reports, and editor discussions, probably because that content isn't 
+meant for public search engines and could be sensitive or constantly changing. That said, they do 
+allow a few specific things through, like certain API documentation and mobile-view pages, so it's 
+not a total lockdown, just a pretty careful, selective one.
+
+2. Are there specific rules for certain user agents?
+
+I found that Wikipedia also treats different bots differently, not just section-by-section like before.
+Some well-known scraping tools — MJ12bot, HTTrack, wget, and a few others are banned completely, 
+which makes sense since those are usually used to download large parts of a website. Interestingly, 
+some bots that belong to Wikipedia itself, like IsraBot, are given full access with no restrictions,
+so it seems like Wikipedia trusts its own internal tools more than outside ones. And then there's 
+SemrushBot, which isn't banned, but it does have to wait 5 seconds between requests, kind of like 
+a "you can come in, just slow down" rule. Anything that isn't specifically named just follows the
+general rules under the User-agent: * section, which acts like a default policy for everyone else.
+
+Reflection
+
+Basically, robots.txt is like a website's way of telling crawlers "you can look here, but stay out 
+of there," so bots know which pages are fair game and which ones to leave alone. As a student 
+learning to scrape responsibly, I think it's important to follow these rules and crawl delays 
+because it keeps me from overloading the server, avoids messing with sensitive pages, and just 
+shows that I'm scraping in an ethical way.
